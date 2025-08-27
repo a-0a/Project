@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Animação de carregamento */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .loader {
+            text-align: center;
+            color: white;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loader p {
+            font-size: 18px;
+            font-weight: 300;
+        }
+
+        /* Conteúdo principal */
+        .main-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
+        }
+
+        .main-content.show {
+            opacity: 1;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .login-box h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 28px;
+            font-weight: 300;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            background: white;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            margin-top: 15px;
+            padding: 10px;
+            background: #ff6b6b;
+            color: white;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        /* Dashboard styles */
+        .dashboard {
+            padding: 20px;
+            color: white;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .dashboard-header h1 {
+            font-size: 24px;
+            font-weight: 300;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-btn, .settings-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover, .settings-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .dashboard-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .dashboard-card h3 {
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .dashboard-card p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+
+        /* Settings styles */
+        .settings-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .settings-box {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .settings-box h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e1e1e1;
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .form-section h3 {
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 8px 16px;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+        }
+
+        .success-message {
+            margin-top: 15px;
+            padding: 10px;
+            background: #28a745;
+            color: white;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .login-box {
+                padding: 30px 20px;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .dashboard-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content show">
+        <div class="settings-container">
+            <a href="dashboard_combined.html" class="back-btn">← Voltar ao Dashboard</a>
+            
+            <div class="settings-box">
+                <h1>Configurações da Conta</h1>
+
+                <div class="form-section">
+                    <h3>Alterar Nome de Usuário</h3>
+                    <form id="username-form">
+                        <div class="input-group">
+                            <label for="current-username">Nome de usuário atual:</label>
+                            <input type="text" id="current-username" readonly>
+                        </div>
+                        <div class="input-group">
+                            <label for="new-username">Novo nome de usuário:</label>
+                            <input type="text" id="new-username" name="new-username" required>
+                        </div>
+                        <button type="submit" class="login-btn">Alterar Nome de Usuário</button>
+                    </form>
+                    <div id="username-message" class="success-message hidden"></div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Alterar Senha</h3>
+                    <form id="password-form">
+                        <div class="input-group">
+                            <label for="current-password">Senha atual:</label>
+                            <input type="password" id="current-password" name="current-password" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="new-password">Nova senha:</label>
+                            <input type="password" id="new-password" name="new-password" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="confirm-password">Confirmar nova senha:</label>
+                            <input type="password" id="confirm-password" name="confirm-password" required>
+                        </div>
+                        <button type="submit" class="login-btn">Alterar Senha</button>
+                    </form>
+                    <div id="password-message" class="success-message hidden"></div>
+                    <div id="password-error" class="error-message hidden"></div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Informações da Conta</h3>
+                    <p><strong>Último login:</strong> <span id="last-login"></span></p>
+                    <p><strong>Conta criada em:</strong> <span id="account-created"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Animação de carregamento
+        document.addEventListener("DOMContentLoaded", function() {
+            const loadingScreen = document.getElementById("loading-screen");
+            const mainContent = document.getElementById("main-content");
+            
+            if (loadingScreen && mainContent) {
+                // Simular tempo de carregamento
+                setTimeout(() => {
+                    loadingScreen.style.opacity = "0";
+                    setTimeout(() => {
+                        loadingScreen.classList.add("hidden");
+                        mainContent.classList.remove("hidden");
+                        mainContent.classList.add("show");
+                    }, 500);
+                }, 2000); // 2 segundos de carregamento
+            }
+        });
+
+        // Sistema de login
+        document.addEventListener("DOMContentLoaded", function() {
+            const loginForm = document.getElementById("login-form");
+            
+            if (loginForm) {
+                loginForm.addEventListener("submit", function(e) {
+                    e.preventDefault();
+                    
+                    const username = document.getElementById("username").value.trim();
+                    const password = document.getElementById("password").value;
+                    const errorMessage = document.getElementById("error-message");
+                    
+                    // Limpar mensagem de erro anterior
+                    errorMessage.classList.add("hidden");
+                    
+                    // Validação básica (sem segurança real)
+                    if (username === "" || password === "") {
+                        showError("Por favor, preencha todos os campos.");
+                        return;
+                    }
+                    
+                    // Simular autenticação (aceita qualquer usuário/senha com pelo menos 3 caracteres)
+                    if (username.length >= 3 && password.length >= 3) {
+                        // Salvar dados do usuário (sem segurança)
+                        localStorage.setItem("isLoggedIn", "true");
+                        localStorage.setItem("username", username);
+                        localStorage.setItem("password", password);
+                        localStorage.setItem("loginTime", new Date().toISOString());
+                        
+                        // Redirecionar para o dashboard
+                        window.location.href = "dashboard_combined.html";
+                    } else {
+                        showError("Nome de usuário e senha devem ter pelo menos 3 caracteres.");
+                    }
+                });
+            }
+            
+            function showError(message) {
+                const errorMessage = document.getElementById("error-message");
+                errorMessage.textContent = message;
+                errorMessage.classList.remove("hidden");
+                
+                // Remover a mensagem após 5 segundos
+                setTimeout(() => {
+                    errorMessage.classList.add("hidden");
+                }, 5000);
+            }
+        });
+
+        // Função de logout global
+        function logout() {
+            localStorage.removeItem("isLoggedIn");
+            localStorage.removeItem("username");
+            localStorage.removeItem("password");
+            localStorage.removeItem("loginTime");
+            window.location.href = "index_combined.html";
+        }
+
+        // Verificar autenticação em páginas protegidas
+        function checkAuth() {
+            const isLoggedIn = localStorage.getItem("isLoggedIn");
+            const currentPage = window.location.pathname.split("/").pop();
+            
+            if (!isLoggedIn && (currentPage === "dashboard_combined.html" || currentPage === "settings_combined.html")) {
+                window.location.href = "index_combined.html";
+            }
+            
+            if (isLoggedIn && currentPage === "index_combined.html") {
+                window.location.href = "dashboard_combined.html";
+            }
+        }
+
+        // Executar verificação de autenticação
+        document.addEventListener("DOMContentLoaded", checkAuth);
+
+        // Utilitários
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString("pt-BR");
+        }
+
+        // Adicionar efeitos visuais
+        document.addEventListener("DOMContentLoaded", function() {
+            // Efeito de foco nos inputs
+            const inputs = document.querySelectorAll("input[type='text'], input[type='password']");
+            inputs.forEach(input => {
+                input.addEventListener("focus", function() {
+                    this.parentElement.classList.add("focused");
+                });
+                
+                input.addEventListener("blur", function() {
+                    this.parentElement.classList.remove("focused");
+                });
+            });
+            
+            // Efeito de hover nos botões
+            const buttons = document.querySelectorAll("button, .login-btn, .logout-btn, .settings-btn");
+            buttons.forEach(button => {
+                button.addEventListener("mouseenter", function() {
+                    this.style.transform = "translateY(-2px)";
+                });
+                
+                button.addEventListener("mouseleave", function() {
+                    this.style.transform = "translateY(0)";
+                });
+            });
+        });
+
+        // Função para mostrar notificações
+        function showNotification(message, type = "success") {
+            const notification = document.createElement("div");
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                background: ${type === "success" ? "#28a745" : "#dc3545"};
+                color: white;
+                border-radius: 5px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 10000;
+                animation: slideIn 0.3s ease-out;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = "slideOut 0.3s ease-out";
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Adicionar animações CSS via JavaScript
+        const style = document.createElement("style");
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+            
+            .input-group.focused input {
+                border-color: #667eea !important;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Verificar se o usuário está logado
+        if (!localStorage.getItem('isLoggedIn')) {
+            window.location.href = 'index_combined.html';
+        }
+
+        // Carregar informações do usuário
+        const username = localStorage.getItem('username') || 'usuario';
+        document.getElementById('current-username').value = username;
+        document.getElementById('last-login').textContent = new Date().toLocaleString('pt-BR');
+        document.getElementById('account-created').textContent = '01/01/2024 10:00:00';
+
+        // Formulário de alteração de nome de usuário
+        document.getElementById('username-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const newUsername = document.getElementById('new-username').value.trim();
+            
+            if (newUsername && newUsername !== username) {
+                localStorage.setItem('username', newUsername);
+                document.getElementById('current-username').value = newUsername;
+                document.getElementById('new-username').value = '';
+                
+                const message = document.getElementById('username-message');
+                message.textContent = 'Nome de usuário alterado com sucesso!';
+                message.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    message.classList.add('hidden');
+                }, 3000);
+            }
+        });
+
+        // Formulário de alteração de senha
+        document.getElementById('password-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const currentPassword = document.getElementById('current-password').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            
+            const errorDiv = document.getElementById('password-error');
+            const successDiv = document.getElementById('password-message');
+            
+            // Limpar mensagens anteriores
+            errorDiv.classList.add('hidden');
+            successDiv.classList.add('hidden');
+            
+            // Validações básicas
+            if (newPassword !== confirmPassword) {
+                errorDiv.textContent = 'As senhas não coincidem!';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            if (newPassword.length < 4) {
+                errorDiv.textContent = 'A nova senha deve ter pelo menos 4 caracteres!';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            // Simular verificação da senha atual (sem segurança real)
+            const storedPassword = localStorage.getItem('password') || 'admin';
+            if (currentPassword !== storedPassword) {
+                errorDiv.textContent = 'Senha atual incorreta!';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            // Salvar nova senha
+            localStorage.setItem('password', newPassword);
+            
+            // Limpar campos
+            document.getElementById('current-password').value = '';
+            document.getElementById('new-password').value = '';
+            document.getElementById('confirm-password').value = '';
+            
+            // Mostrar sucesso
+            successDiv.textContent = 'Senha alterada com sucesso!';
+            successDiv.classList.remove('hidden');
+            
+            setTimeout(() => {
+                successDiv.classList.add('hidden');
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
+
